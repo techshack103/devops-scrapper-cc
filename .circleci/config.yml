@@ -26,9 +26,6 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
-      - run:
           name: Build Docker image
           command: |
             docker build -t techshack176/backend-app-cc server
