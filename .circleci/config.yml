@@ -1,0 +1,45 @@
+version: 2.1
+
+jobs:
+  build_frontend:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t techshack176/frontend-app-cc client
+            docker tag techshack176/frontend-app-cc techshack176/frontend-app-cc
+      - run:
+          name: Push frontend Docker image to Docker Hub
+          command: |
+            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+            docker push techshack176/frontend-app-cc
+  build_backend:
+    docker:
+      - image: circleci/python:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t techshack176/backend-app-cc server
+            docker tag techshack176/backend-app-cc techshack176/backend-app-cc
+      - run:
+          name: Push backend Docker image to Docker Hub
+          command: |
+            docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+            docker push techshack176/backend-app-cc
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build_frontend
+      - build_backend:
+          requires:
+            - build_frontend
